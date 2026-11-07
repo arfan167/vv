@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D GLB Model Studio</title>
+  
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      background: #09090b;
+      color: #f4f4f5;
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* Ambient Background Glow */
+    .bg-glow {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.1) 50%, transparent 70%);
+      filter: blur(70px);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .glow-1 { top: -100px; left: -100px; }
+    .glow-2 { bottom: -100px; right: -100px; background: radial-gradient(circle, rgba(236, 72, 153, 0.2) 0%, transparent 70%); }
+
+    /* Initial App Loading Screen */
+    #app-preloader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 200;
+      background: #09090b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    #app-preloader.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .preloader-brand {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .progress-bar-container {
+      width: 240px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
+    .preloader-status {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: #71717a;
+      letter-spacing: 0.5px;
+    }
+
+    /* Welcome Modal Overlay */
+    #welcome-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9, 9, 11, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    #welcome-modal.fade-out {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.05);
+    }
+
+    .welcome-card {
+      background: rgba(24, 24, 37, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 40px;
+      border-radius: 24px;
+      width: 90%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .welcome-badge {
+      display: inline-block;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .welcome-card h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #fff 30%, #a1a1aa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-card p {
+      font-size: 0.85rem;
+      color: #a1a1aa;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .lang-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 18px;
+      border-radius: 14px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: left;
+    }
+
+    .lang-btn:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: rgba(99, 102, 241, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .lang-btn .flag {
+      font-size: 1.6rem;
+    }
+
+    .lang-text strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .lang-text small {
+      font-size: 0.75rem;
+      color: #a1a1aa;
+    }
+
+    /* Glassmorphism Navigation Header */
+    #top-nav {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      background: rgba(18, 18, 24, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      transition: opacity 0.3s ease;
+    }
+
+    .badge {
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e4e4e7;
+    }
+
+    /* Model Inspector Info Badge */
+    #info-card {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(18, 18, 24, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 12px 18px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      transition: opacity 0.3s ease;
+    }
+
+    .info-item {
+      font-size: 0.75rem;
+      color: #a1a1aa;
+    }
+
+    .info-item span {
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+
+    /* Floating Toggle Hamburger Button (Bila Panel Ditutup) */
+    #btn-open-panel {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 15;
+      display: none;
+      background: rgba(18, 18, 24, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transition: all 0.25s ease;
+    }
+
+    #btn-open-panel:hover {
+      background: rgba(99, 102, 241, 0.3);
+      border-color: rgba(99, 102, 241, 0.5);
+      transform: scale(1.05);
+    }
+
+    /* Floating Exit Presentation Mode Button */
+    #btn-exit-presentation {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
+      display: none;
+      background: rgba(99, 102, 241, 0.3);
+      border: 1px solid rgba(99, 102, 241, 0.5);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Drop Zone Overlay */
+    #drop-zone {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9, 9, 11, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+    }
+
+    .drop-card {
+      background: rgba(24, 24, 37, 0.6);
+      border: 2px dashed rgba(99, 102, 241, 0.4);
+      padding: 48px 60px;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    #drop-zone.drag-over .drop-card {
+      border-color: #818cf8;
+      background: rgba(99, 102, 241, 0.15);
+      transform: scale(1.02);
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+    }
+
+    #drop-zone.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.05);
+    }
+
+    .upload-icon-wrapper {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .upload-icon {
+      width: 36px;
+      height: 36px;
+      fill: #818cf8;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 30%, #a1a1aa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      color: #a1a1aa;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .btn-upload {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      padding: 12px 28px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-upload:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(99, 102, 241, 0.5);
+    }
+
+    /* UI Control Panel */
+    #ui-panel {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+      background: rgba(18, 18, 24, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 280px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #ui-panel.panel-hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(30px);
+    }
+
+    #ui-panel::-webkit-scrollbar {
+      width: 4px;
+    }
+    #ui-panel::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    .panel-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+
+    .panel-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #71717a;
+    }
+
+    .btn-close-panel {
+      background: transparent;
+      border: none;
+      color: #a1a1aa;
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .btn-close-panel:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .label-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #d4d4d8;
+    }
+
+    .val-badge {
+      font-size: 0.75rem;
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #6366f1;
+      cursor: pointer;
+    }
+
+    select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select option {
+      background: #18181b;
+      color: #fff;
+    }
+
+    .color-picker-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      background: none;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+    }
+
+    .lang-toggle-group {
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .lang-toggle-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #a1a1aa;
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-toggle-btn.active {
+      background: rgba(99, 102, 241, 0.3);
+      color: #ffffff;
+      border: 1px solid rgba(99, 102, 241, 0.5);
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f4f4f5;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .action-btn.primary {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: rgba(99, 102, 241, 0.4);
+      color: #a5b4fc;
+    }
+
+    .action-btn.primary:hover {
+      background: rgba(99, 102, 241, 0.35);
+    }
+
+    .action-btn.snapshot-btn {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+    .action-btn.snapshot-btn:hover {
+      background: rgba(16, 185, 129, 0.35);
+    }
+
+    .action-btn.presentation-btn {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #fcd34d;
+    }
+    .action-btn.presentation-btn:hover {
+      background: rgba(245, 158, 11, 0.35);
+    }
+
+    /* Model Loading Screen */
+    #loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 30;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      background: rgba(18, 18, 24, 0.8);
+      padding: 24px 36px;
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid rgba(99, 102, 241, 0.2);
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+  <!-- Three.js Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+
+  <!-- App Preloader Loading Screen -->
+  <div id="app-preloader">
+    <div class="preloader-brand">3D Studio</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="preloader-bar"></div>
+    </div>
+    <div class="preloader-status" id="preloader-text">Loading assets...</div>
+  </div>
+
+  <!-- Background Glow Effects -->
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+
+  <!-- Welcome / Language Selector Modal -->
+  <div id="welcome-modal">
+    <div class="welcome-card">
+      <div class="welcome-badge">Welcome • Selamat Datang</div>
+      <h1>3D GLB Studio</h1>
+      <p>Sila pilih bahasa pilihan anda untuk meneruskan / Please select your preferred language to continue.</p>
+      
+      <div class="lang-selector">
+        <button class="lang-btn" onclick="setLanguage('ms')">
+          <span class="flag">🇲🇾</span>
+          <div class="lang-text">
+            <strong>Bahasa Melayu</strong>
+            <small>Teruskan dalam Bahasa Melayu</small>
+          </div>
+        </button>
+
+        <button class="lang-btn" onclick="setLanguage('en')">
+          <span class="flag">🇬🇧</span>
+          <div class="lang-text">
+            <strong>English</strong>
+            <small>Continue in English</small>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Branding -->
+  <div id="top-nav">
+    <span class="badge">3D Viewer</span>
+    <span class="nav-title">GLB Model Studio</span>
+  </div>
+
+  <!-- Model Info Inspector Badge -->
+  <div id="info-card">
+    <div class="info-item">Triangles / Polygons: <span id="info-poly">0</span></div>
+    <div class="info-item">Vertices: <span id="info-vert">0</span></div>
+    <div class="info-item">Mesh Count: <span id="info-mesh">0</span></div>
+  </div>
+
+  <!-- Hamburger Open Panel Button (Bila panel ditutup) -->
+  <button id="btn-open-panel" title="Buka Tetapan Studio">☰</button>
+
+  <!-- Floating Exit Presentation Mode Button -->
+  <button id="btn-exit-presentation">✖ Exit Presentation Mode</button>
+
+  <!-- 3D Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- Drag and Drop UI Overlay -->
+  <div id="drop-zone">
+    <div class="drop-card">
+      <div class="upload-icon-wrapper">
+        <svg class="upload-icon" viewBox="0 0 24 24">
+          <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+        </svg>
+      </div>
+      <h2>Muat Naik Model 3D</h2>
+      <p>Tarik & lepas fail .glb / .gltf ke sini</p>
+      <button class="btn-upload" onclick="document.getElementById('file-input').click()">Pilih Fail GLB</button>
+      <input type="file" id="file-input" accept=".glb,.gltf" style="display: none;">
+    </div>
+  </div>
+
+  <!-- UI Control Panel -->
+  <div id="ui-panel">
+    <div class="panel-header-row">
+      <div class="panel-header" id="panel-header">Tetapan Studio</div>
+      <button class="btn-close-panel" id="btn-close-panel" title="Tutup Panel Tetapan">✕</button>
+    </div>
+    
+    <div class="control-group">
+      <label id="lbl-lang">Bahasa / Language</label>
+      <div class="lang-toggle-group">
+        <button class="lang-toggle-btn active" id="btn-lang-ms" onclick="switchLanguage('ms')">🇲🇾 BM</button>
+        <button class="lang-toggle-btn" id="btn-lang-en" onclick="switchLanguage('en')">🇬🇧 EN</button>
+      </div>
+    </div>
+
+    <!-- Scale / Saiz Model Control -->
+    <div class="control-group">
+      <div class="label-header">
+        <label id="lbl-scale" for="model-scale">Saiz Model (Scale)</label>
+        <span class="val-badge" id="scale-val">1.0x</span>
+      </div>
+      <input type="range" id="model-scale" min="0.1" max="10" step="0.1" value="1">
+    </div>
+
+    <!-- Offset Ketinggian Y Manual -->
+    <div class="control-group">
+      <div class="label-header">
+        <label id="lbl-pos-y" for="pos-y">Ketinggian Model (Y Offset)</label>
+        <span class="val-badge" id="pos-y-val">0.0</span>
+      </div>
+      <input type="range" id="pos-y" min="-5" max="5" step="0.1" value="0">
+    </div>
+
+    <!-- Kawalan Warna & Material Model -->
+    <div class="control-group">
+      <label id="lbl-mat-color" for="mat-color">Warna Model (Base Color)</label>
+      <div class="color-picker-wrapper">
+        <input type="color" id="mat-color" value="#ffffff">
+        <span id="lbl-pick-mat-color" style="font-size: 0.8rem; color: #a1a1aa;">Pilih Warna</span>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <div class="label-header">
+        <label id="lbl-metalness" for="mat-metalness">Kilatan Logam (Metalness)</label>
+        <span class="val-badge" id="metalness-val">0.5</span>
+      </div>
+      <input type="range" id="mat-metalness" min="0" max="1" step="0.05" value="0.5">
+    </div>
+
+    <div class="control-group">
+      <div class="label-header">
+        <label id="lbl-roughness" for="mat-roughness">Kekasaran (Roughness)</label>
+        <span class="val-badge" id="roughness-val">0.5</span>
+      </div>
+      <input type="range" id="mat-roughness" min="0" max="1" step="0.05" value="0.5">
+    </div>
+
+    <!-- Rotation Y Axis -->
+    <div class="control-group">
+      <div class="label-header">
+        <label id="lbl-rot-y" for="rot-y">Putaran Manual (Rotation Y)</label>
+        <span class="val-badge" id="rot-y-val">0°</span>
+      </div>
+      <input type="range" id="rot-y" min="0" max="360" step="1" value="0">
+    </div>
+
+    <!-- Preset & Intensity Pencahayaan -->
+    <div class="control-group">
+      <label id="lbl-light" for="lighting-select">Preset Pencahayaan</label>
+      <select id="lighting-select">
+        <option value="studio">Studio Light (Standard)</option>
+        <option value="cyberpunk">Cyberpunk Neon</option>
+        <option value="sunset">Warm Sunset</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <div class="label-header">
+        <label id="lbl-light-intensity" for="light-intensity">Kecerahan Lampu</label>
+        <span class="val-badge" id="light-intensity-val">1.0x</span>
+      </div>
+      <input type="range" id="light-intensity" min="0.2" max="3.0" step="0.1" value="1.0">
+    </div>
+
+    <!-- Panel Kawalan Animasi -->
+    <div class="control-group" id="anim-group" style="display: none;">
+      <label id="lbl-anim">Animasi 3D</label>
+      <select id="anim-select"></select>
+      
+      <div class="label-header" style="margin-top: 4px;">
+        <label id="lbl-anim-speed" for="anim-speed">Kelajuan Animasi</label>
+        <span class="val-badge" id="speed-val">1.0x</span>
+      </div>
+      <input type="range" id="anim-speed" min="0.25" max="2.0" step="0.25" value="1">
+
+      <button class="action-btn" id="btn-play-anim">Pause Animasi</button>
+    </div>
+
+    <div class="control-group">
+      <label id="lbl-bg-color" for="bg-color">Warna Latar Belakang</label>
+      <div class="color-picker-wrapper">
+        <input type="color" id="bg-color" value="#09090b">
+        <span id="lbl-pick-color" style="font-size: 0.8rem; color: #a1a1aa;">Pilih Warna</span>
+      </div>
+    </div>
+
+    <!-- Mod Garis Rangka (Wireframe Mode) -->
+    <div class="checkbox-container" id="wireframe-checkbox-container">
+      <label id="lbl-wireframe" for="show-wireframe" style="cursor: pointer;">Wireframe Mode</label>
+      <input type="checkbox" id="show-wireframe" style="cursor: pointer;">
+    </div>
+
+    <!-- Toggle Jaring Lantai (Grid Helper) -->
+    <div class="checkbox-container" id="grid-checkbox-container">
+      <label id="lbl-grid" for="show-grid" style="cursor: pointer;">Papar Jaring Lantai</label>
+      <input type="checkbox" id="show-grid" style="cursor: pointer;">
+    </div>
+
+    <div class="checkbox-container" id="rotate-checkbox-container">
+      <label id="lbl-rotate" for="auto-rotate" style="cursor: pointer;">Putar Otomatis</label>
+      <input type="checkbox" id="auto-rotate" style="cursor: pointer;">
+    </div>
+
+    <!-- Action Buttons -->
+    <button class="action-btn presentation-btn" id="btn-presentation">📺 Presentation Mode</button>
+    <button class="action-btn snapshot-btn" id="btn-snapshot">📸 Tangkap Gambar (PNG)</button>
+    <button class="action-btn" id="btn-reset-cam">Reset View Camera</button>
+    <button class="action-btn primary" id="btn-change-model" onclick="document.getElementById('file-input').click()">Tukar Model GLB</button>
+  </div>
+
+  <!-- Model Loading Screen -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <span id="loading-txt" style="font-size: 0.9rem; font-weight: 500;">Memuat naik model 3D...</span>
+  </div>
+
+  <script>
+    // App Preloader Animation
+    window.addEventListener('DOMContentLoaded', () => {
+      const progressBar = document.getElementById('preloader-bar');
+      const progressText = document.getElementById('preloader-text');
+      const preloader = document.getElementById('app-preloader');
+      
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 20) + 10;
+        if (progress > 100) progress = 100;
+        
+        progressBar.style.width = progress + '%';
+        
+        if (progress === 100) {
+          clearInterval(interval);
+          progressText.innerText = 'Ready!';
+          setTimeout(() => {
+            preloader.classList.add('fade-out');
+          }, 300);
+        }
+      }, 120);
+    });
+
+    // Language Translation Setup
+    const i18n = {
+      ms: {
+        dropTitle: "Muat Naik Model 3D",
+        dropDesc: "Tarik & lepas fail .glb / .gltf ko ke sini",
+        btnUpload: "Pilih Fail GLB",
+        panelHeader: "Tetapan Studio",
+        langLabel: "Bahasa / Language",
+        scaleLabel: "Saiz Model (Scale)",
+        posYLabel: "Ketinggian Model (Y Offset)",
+        matColorLabel: "Warna Model (Base Color)",
+        metalnessLabel: "Kilatan Logam (Metalness)",
+        roughnessLabel: "Kekasaran (Roughness)",
+        rotYLabel: "Putaran Manual (Rotation Y)",
+        lightLabel: "Preset Pencahayaan",
+        lightIntensityLabel: "Kecerahan Lampu",
+        animLabel: "Animasi 3D",
+        speedLabel: "Kelajuan Animasi",
+        pauseAnim: "Pause Animasi",
+        playAnim: "Play Animasi",
+        bgLabel: "Warna Latar Belakang",
+        pickColor: "Pilih Warna",
+        wireframeMode: "Wireframe Mode",
+        showGrid: "Papar Jaring Lantai",
+        autoRotate: "Putar Otomatis",
+        btnPresentation: "📺 Presentation Mode",
+        btnSnapshot: "📸 Tangkap Gambar (PNG)",
+        resetCam: "Reset View Camera",
+        changeModel: "Tukar Model GLB",
+        loadingText: "Memuat naik model 3D..."
+      },
+      en: {
+        dropTitle: "Upload 3D Model",
+        dropDesc: "Drag & drop your .glb / .gltf file here",
+        btnUpload: "Select GLB File",
+        panelHeader: "Studio Settings",
+        langLabel: "Language / Bahasa",
+        scaleLabel: "Model Size (Scale)",
+        posYLabel: "Model Height (Y Offset)",
+        matColorLabel: "Model Color (Base Color)",
+        metalnessLabel: "Metalness",
+        roughnessLabel: "Roughness",
+        rotYLabel: "Manual Rotation (Y-Axis)",
+        lightLabel: "Lighting Preset",
+        lightIntensityLabel: "Light Intensity",
+        animLabel: "3D Animation",
+        speedLabel: "Animation Speed",
+        pauseAnim: "Pause Animation",
+        playAnim: "Play Animation",
+        bgLabel: "Background Color",
+        pickColor: "Pick Color",
+        wireframeMode: "Wireframe Mode",
+        showGrid: "Show Floor Grid",
+        autoRotate: "Auto Rotate",
+        btnPresentation: "📺 Presentation Mode",
+        btnSnapshot: "📸 Take Snapshot (PNG)",
+        resetCam: "Reset Camera View",
+        changeModel: "Change GLB Model",
+        loadingText: "Loading 3D model..."
+      }
+    };
+
+    let currentLang = 'ms';
+    let isAnimPlaying = true;
+    let baseScaleFactor = 1;
+    let initialPosY = 0;
+
+    function switchLanguage(lang) {
+      currentLang = lang;
+      const texts = i18n[lang];
+
+      document.querySelector('.drop-card h2').innerText = texts.dropTitle;
+      document.querySelector('.drop-card p').innerText = texts.dropDesc;
+      document.querySelector('.btn-upload').innerText = texts.btnUpload;
+      document.getElementById('panel-header').innerText = texts.panelHeader;
+      document.getElementById('lbl-lang').innerText = texts.langLabel;
+      document.getElementById('lbl-scale').innerText = texts.scaleLabel;
+      document.getElementById('lbl-pos-y').innerText = texts.posYLabel;
+      document.getElementById('lbl-mat-color').innerText = texts.matColorLabel;
+      document.getElementById('lbl-metalness').innerText = texts.metalnessLabel;
+      document.getElementById('lbl-roughness').innerText = texts.roughnessLabel;
+      document.getElementById('lbl-rot-y').innerText = texts.rotYLabel;
+      document.getElementById('lbl-light').innerText = texts.lightLabel;
+      document.getElementById('lbl-light-intensity').innerText = texts.lightIntensityLabel;
+      document.getElementById('lbl-anim').innerText = texts.animLabel;
+      document.getElementById('lbl-anim-speed').innerText = texts.speedLabel;
+      document.getElementById('btn-play-anim').innerText = isAnimPlaying ? texts.pauseAnim : texts.playAnim;
+      document.getElementById('lbl-bg-color').innerText = texts.bgLabel;
+      document.getElementById('lbl-pick-color').innerText = texts.pickColor;
+      document.getElementById('lbl-wireframe').innerText = texts.wireframeMode;
+      document.getElementById('lbl-grid').innerText = texts.showGrid;
+      document.getElementById('lbl-rotate').innerText = texts.autoRotate;
+      document.getElementById('btn-presentation').innerText = texts.btnPresentation;
+      document.getElementById('btn-snapshot').innerText = texts.btnSnapshot;
+      document.getElementById('btn-reset-cam').innerText = texts.resetCam;
+      document.getElementById('btn-change-model').innerText = texts.changeModel;
+      document.getElementById('loading-txt').innerText = texts.loadingText;
+
+      document.getElementById('btn-lang-ms').classList.toggle('active', lang === 'ms');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+    }
+
+    function setLanguage(lang) {
+      switchLanguage(lang);
+
+      const modal = document.getElementById('welcome-modal');
+      modal.classList.add('fade-out');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 500);
+    }
+
+    // Panel Toggle Close (✕) & Hamburger Open (☰)
+    const uiPanel = document.getElementById('ui-panel');
+    const btnClosePanel = document.getElementById('btn-close-panel');
+    const btnOpenPanel = document.getElementById('btn-open-panel');
+
+    btnClosePanel.addEventListener('click', () => {
+      uiPanel.classList.add('panel-hidden');
+      btnOpenPanel.style.display = 'flex';
+    });
+
+    btnOpenPanel.addEventListener('click', () => {
+      uiPanel.classList.remove('panel-hidden');
+      btnOpenPanel.style.display = 'none';
+    });
+
+    // Scene & Camera Setup
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#09090b');
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 2, 5);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    container.appendChild(renderer.domElement);
+
+    // Controls Setup
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+    // Grid Helper Floor (100 unit luas)
+    const gridHelper = new THREE.GridHelper(100, 50, 0x6366f1, 0x27272a);
+    gridHelper.position.y = -0.01;
+    gridHelper.visible = false;
+    scene.add(gridHelper);
+
+    // Contact Shadow Floor Plane
+    const shadowPlaneGeo = new THREE.PlaneGeometry(100, 100);
+    const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.35 });
+    const shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.y = -0.01;
+    shadowPlane.receiveShadow = true;
+    scene.add(shadowPlane);
+
+    // Dynamic Lighting Setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0xffffff, 2);
+    dirLight1.position.set(5, 10, 7.5);
+    dirLight1.castShadow = true;
+    dirLight1.shadow.mapSize.width = 1024;
+    dirLight1.shadow.mapSize.height = 1024;
+    scene.add(dirLight1);
+
+    const dirLight2 = new THREE.DirectionalLight(0xa855f7, 0.8);
+    dirLight2.position.set(-5, -5, -5);
+    scene.add(dirLight2);
+
+    let lightBaseIntensity = 1.0;
+
+    function setLightingPreset(preset) {
+      if (preset === 'studio') {
+        ambientLight.color.setHex(0xffffff);
+        ambientLight.intensity = 1.5 * lightBaseIntensity;
+        dirLight1.color.setHex(0xffffff);
+        dirLight1.intensity = 2 * lightBaseIntensity;
+        dirLight2.color.setHex(0xa855f7);
+        dirLight2.intensity = 0.8 * lightBaseIntensity;
+      } else if (preset === 'cyberpunk') {
+        ambientLight.color.setHex(0x0f172a);
+        ambientLight.intensity = 0.8 * lightBaseIntensity;
+        dirLight1.color.setHex(0x06b6d4); // Cyan
+        dirLight1.intensity = 3 * lightBaseIntensity;
+        dirLight2.color.setHex(0xec4899); // Magenta
+        dirLight2.intensity = 2.5 * lightBaseIntensity;
+      } else if (preset === 'sunset') {
+        ambientLight.color.setHex(0x451a03);
+        ambientLight.intensity = 1.2 * lightBaseIntensity;
+        dirLight1.color.setHex(0xf97316); // Orange
+        dirLight1.intensity = 2.5 * lightBaseIntensity;
+        dirLight2.color.setHex(0xeab308); // Yellow-gold
+        dirLight2.intensity = 1.5 * lightBaseIntensity;
+      }
+    }
+
+    document.getElementById('lighting-select').addEventListener('change', (e) => {
+      setLightingPreset(e.target.value);
+    });
+
+    document.getElementById('light-intensity').addEventListener('input', (e) => {
+      lightBaseIntensity = parseFloat(e.target.value);
+      document.getElementById('light-intensity-val').innerText = lightBaseIntensity.toFixed(1) + 'x';
+      setLightingPreset(document.getElementById('lighting-select').value);
+    });
+
+    // Animation & Model Loading Logic
+    let currentModel = null;
+    let mixer = null;
+    let animationsList = [];
+    let activeAction = null;
+    const clock = new THREE.Clock();
+    const loader = new THREE.GLTFLoader();
+
+    function loadGLBModel(url) {
+      document.getElementById('loader').style.display = 'flex';
+      
+      loader.load(url, (gltf) => {
+        if (currentModel) {
+          scene.remove(currentModel);
+        }
+
+        if (mixer) {
+          mixer.stopAllAction();
+          mixer = null;
+        }
+
+        currentModel = gltf.scene;
+        animationsList = gltf.animations;
+
+        // Reset UI Controls
+        document.getElementById('model-scale').value = 1;
+        document.getElementById('scale-val').innerText = '1.0x';
+        document.getElementById('pos-y').value = 0;
+        document.getElementById('pos-y-val').innerText = '0.0';
+        document.getElementById('mat-color').value = '#ffffff';
+        document.getElementById('mat-metalness').value = 0.5;
+        document.getElementById('metalness-val').innerText = '0.5';
+        document.getElementById('mat-roughness').value = 0.5;
+        document.getElementById('roughness-val').innerText = '0.5';
+        document.getElementById('rot-y').value = 0;
+        document.getElementById('rot-y-val').innerText = '0°';
+        document.getElementById('show-wireframe').checked = false;
+
+        baseScaleFactor = 1;
+
+        const animGroup = document.getElementById('anim-group');
+        const animSelect = document.getElementById('anim-select');
+        document.getElementById('anim-speed').value = 1;
+        document.getElementById('speed-val').innerText = '1.0x';
+
+        if (animationsList && animationsList.length > 0) {
+          mixer = new THREE.AnimationMixer(currentModel);
+          animSelect.innerHTML = '';
+
+          animationsList.forEach((anim, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.innerText = anim.name || `Animation ${index + 1}`;
+            animSelect.appendChild(option);
+          });
+
+          playAnimation(0);
+          isAnimPlaying = true;
+          document.getElementById('btn-play-anim').innerText = i18n[currentLang].pauseAnim;
+          animGroup.style.display = 'flex';
+        } else {
+          animGroup.style.display = 'none';
+        }
+
+        // Model Inspector Stats Calculation
+        let triCount = 0;
+        let vertCount = 0;
+        let meshCount = 0;
+
+        currentModel.traverse((child) => {
+          if (child.isMesh) {
+            meshCount++;
+            if (child.geometry) {
+              vertCount += child.geometry.attributes.position.count;
+              if (child.geometry.index) {
+                triCount += child.geometry.index.count / 3;
+              } else {
+                triCount += child.geometry.attributes.position.count / 3;
+              }
+            }
+          }
+        });
+
+        document.getElementById('info-poly').innerText = Math.round(triCount).toLocaleString();
+        document.getElementById('info-vert').innerText = vertCount.toLocaleString();
+        document.getElementById('info-mesh').innerText = meshCount;
+        document.getElementById('info-card').style.display = 'flex';
+
+        // Align Foot Base directly on Grid Floor (Y = 0)
+        let box = new THREE.Box3().setFromObject(currentModel);
+        let center = box.getCenter(new THREE.Vector3());
+        let size = box.getSize(new THREE.Vector3());
+
+        currentModel.position.x = -center.x;
+        currentModel.position.z = -center.z;
+        currentModel.position.y = -box.min.y;
+        initialPosY = currentModel.position.y;
+
+        const maxDim = Math.max(size.x, size.y, size.z);
+        
+        // Auto boost scale if model is extremely tiny (e.g. Gundam model)
+        if (maxDim < 0.1) {
+          baseScaleFactor = 10 / maxDim;
+          currentModel.scale.setScalar(baseScaleFactor);
+          
+          box = new THREE.Box3().setFromObject(currentModel);
+          currentModel.position.y = -box.min.y;
+          initialPosY = currentModel.position.y;
+        }
+
+        const fov = camera.fov * (Math.PI / 180);
+        let cameraZ = Math.abs((maxDim * baseScaleFactor) / 2 / Math.tan(fov / 2)) * 1.8;
+        if (isNaN(cameraZ) || cameraZ < 1) cameraZ = 5;
+
+        camera.position.set(0, (maxDim * baseScaleFactor) / 2, cameraZ);
+        camera.lookAt(0, (maxDim * baseScaleFactor) / 4, 0);
+        controls.target.set(0, (maxDim * baseScaleFactor) / 4, 0);
+        controls.update();
+
+        currentModel.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+
+        scene.add(currentModel);
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('drop-zone').classList.add('hidden');
+      }, undefined, (error) => {
+        console.error('Error loading model:', error);
+        alert('Gagal memuat naik fail GLB. Pastikan fail adalah format .glb atau .gltf yang sah.');
+        document.getElementById('loader').style.display = 'none';
+      });
+    }
+
+    function playAnimation(index) {
+      if (!mixer || !animationsList[index]) return;
+      if (activeAction) activeAction.stop();
+
+      activeAction = mixer.clipAction(animationsList[index]);
+      activeAction.play();
+    }
+
+    // Manual Height Y Offset Slider
+    document.getElementById('pos-y').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('pos-y-val').innerText = (val >= 0 ? '+' : '') + val.toFixed(1);
+      if (currentModel) {
+        currentModel.position.y = initialPosY + val;
+      }
+    });
+
+    // Model Material & Color Controls
+    document.getElementById('mat-color').addEventListener('input', (e) => {
+      if (currentModel) {
+        currentModel.traverse((child) => {
+          if (child.isMesh && child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(m => m.color.set(e.target.value));
+            } else {
+              child.material.color.set(e.target.value);
+            }
+          }
+        });
+      }
+    });
+
+    document.getElementById('mat-metalness').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('metalness-val').innerText = val.toFixed(2);
+      if (currentModel) {
+        currentModel.traverse((child) => {
+          if (child.isMesh && child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(m => { if ('metalness' in m) m.metalness = val; });
+            } else if ('metalness' in child.material) {
+              child.material.metalness = val;
+            }
+          }
+        });
+      }
+    });
+
+    document.getElementById('mat-roughness').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('roughness-val').innerText = val.toFixed(2);
+      if (currentModel) {
+        currentModel.traverse((child) => {
+          if (child.isMesh && child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(m => { if ('roughness' in m) m.roughness = val; });
+            } else if ('roughness' in child.material) {
+              child.material.roughness = val;
+            }
+          }
+        });
+      }
+    });
+
+    // Manual Rotation Y Slider
+    document.getElementById('rot-y').addEventListener('input', (e) => {
+      const deg = parseInt(e.target.value);
+      document.getElementById('rot-y-val').innerText = deg + '°';
+      if (currentModel) {
+        currentModel.rotation.y = THREE.MathUtils.degToRad(deg);
+      }
+    });
+
+    // Scale Slider Interactivity (Sentiasa kekal di atas jaring)
+    const modelScaleInput = document.getElementById('model-scale');
+    const scaleValDisplay = document.getElementById('scale-val');
+
+    modelScaleInput.addEventListener('input', (e) => {
+      const scaleMultiplier = parseFloat(e.target.value);
+      scaleValDisplay.innerText = scaleMultiplier.toFixed(1) + 'x';
+
+      if (currentModel) {
+        currentModel.scale.setScalar(baseScaleFactor * scaleMultiplier);
+        
+        const box = new THREE.Box3().setFromObject(currentModel);
+        currentModel.position.y = (0 - box.min.y) + parseFloat(document.getElementById('pos-y').value);
+        initialPosY = 0 - box.min.y;
+      }
+    });
+
+    // Animation Speed Slider
+    const animSpeedInput = document.getElementById('anim-speed');
+    const speedValDisplay = document.getElementById('speed-val');
+
+    animSpeedInput.addEventListener('input', (e) => {
+      const speed = parseFloat(e.target.value);
+      speedValDisplay.innerText = speed.toFixed(2) + 'x';
+      if (mixer) {
+        mixer.timeScale = speed;
+      }
+    });
+
+    // Wireframe Toggle Logic
+    const wireframeCheckbox = document.getElementById('show-wireframe');
+    wireframeCheckbox.addEventListener('change', (e) => {
+      if (currentModel) {
+        currentModel.traverse((child) => {
+          if (child.isMesh && child.material) {
+            if (Array.isArray(child.material)) {
+              child.material.forEach(m => m.wireframe = e.target.checked);
+            } else {
+              child.material.wireframe = e.target.checked;
+            }
+          }
+        });
+      }
+    });
+
+    document.getElementById('wireframe-checkbox-container').addEventListener('click', (e) => {
+      if (e.target !== wireframeCheckbox) {
+        wireframeCheckbox.checked = !wireframeCheckbox.checked;
+        wireframeCheckbox.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // Presentation Mode Controls
+    const presentationBtn = document.getElementById('btn-presentation');
+    const exitPresentationBtn = document.getElementById('btn-exit-presentation');
+    const topNav = document.getElementById('top-nav');
+    const infoCard = document.getElementById('info-card');
+
+    presentationBtn.addEventListener('click', () => {
+      uiPanel.classList.add('panel-hidden');
+      btnOpenPanel.style.display = 'none';
+      topNav.style.opacity = '0';
+      infoCard.style.opacity = '0';
+      exitPresentationBtn.style.display = 'block';
+
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      }
+    });
+
+    exitPresentationBtn.addEventListener('click', () => {
+      uiPanel.classList.remove('panel-hidden');
+      topNav.style.opacity = '1';
+      infoCard.style.opacity = '1';
+      exitPresentationBtn.style.display = 'none';
+
+      if (document.exitFullscreen && document.fullscreenElement) {
+        document.exitFullscreen();
+      }
+    });
+
+    // Take Snapshot Feature
+    document.getElementById('btn-snapshot').addEventListener('click', () => {
+      renderer.render(scene, camera);
+      const dataURL = renderer.domElement.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = '3D_Model_Snapshot.png';
+      link.href = dataURL;
+      link.click();
+    });
+
+    // Animation Event Listeners
+    document.getElementById('anim-select').addEventListener('change', (e) => {
+      playAnimation(e.target.value);
+    });
+
+    document.getElementById('btn-play-anim').addEventListener('click', () => {
+      if (!activeAction) return;
+      isAnimPlaying = !isAnimPlaying;
+      activeAction.paused = !isAnimPlaying;
+      document.getElementById('btn-play-anim').innerText = isAnimPlaying ? i18n[currentLang].pauseAnim : i18n[currentLang].playAnim;
+    });
+
+    // Drag & Drop & File Handlers
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+      });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      if (file.name.endsWith('.glb') || file.name.endsWith('.gltf')) {
+        const url = URL.createObjectURL(file);
+        loadGLBModel(url);
+      } else {
+        alert('Sila pilih fail berformat .glb atau .gltf sahaja.');
+      }
+    }
+
+    // UI Panel Interactivity
+    document.getElementById('bg-color').addEventListener('input', (e) => {
+      scene.background = new THREE.Color(e.target.value);
+    });
+
+    // Grid Floor Toggle Logic
+    const gridCheckbox = document.getElementById('show-grid');
+    gridCheckbox.addEventListener('change', (e) => {
+      gridHelper.visible = e.target.checked;
+    });
+
+    document.getElementById('grid-checkbox-container').addEventListener('click', (e) => {
+      if (e.target !== gridCheckbox) {
+        gridCheckbox.checked = !gridCheckbox.checked;
+        gridHelper.visible = gridCheckbox.checked;
+      }
+    });
+
+    // Auto Rotate Event Logic
+    const autoRotateCheckbox = document.getElementById('auto-rotate');
+    autoRotateCheckbox.addEventListener('change', (e) => {
+      controls.autoRotate = e.target.checked;
+      controls.autoRotateSpeed = 2.0;
+    });
+
+    document.getElementById('rotate-checkbox-container').addEventListener('click', (e) => {
+      if (e.target !== autoRotateCheckbox) {
+        autoRotateCheckbox.checked = !autoRotateCheckbox.checked;
+        controls.autoRotate = autoRotateCheckbox.checked;
+        controls.autoRotateSpeed = 2.0;
+      }
+    });
+
+    document.getElementById('btn-reset-cam').addEventListener('click', () => {
+      if (currentModel) {
+        const box = new THREE.Box3().setFromObject(currentModel);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const fov = camera.fov * (Math.PI / 180);
+        let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.8;
+
+        camera.position.set(0, maxDim / 2, cameraZ);
+        controls.target.set(0, maxDim / 4, 0);
+        controls.update();
+      }
+    });
+
+    // Window Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // Render Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      const delta = clock.getDelta();
+      if (mixer) mixer.update(delta);
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
