@@ -5,7 +5,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
-    title: "3D GLB Studio Ultimate",
+    title: "3D GLB Studio",
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
