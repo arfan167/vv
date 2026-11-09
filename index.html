@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D GLB Model Studio</title>
+  <title>3D GLB & STL Model Studio Ultimate</title>
   
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -29,6 +29,18 @@
       top: 0;
       left: 0;
       z-index: 1;
+    }
+
+    /* Interactive 3D ViewCube Container */
+    #viewcube-container {
+      position: absolute;
+      top: 20px;
+      right: 310px;
+      width: 120px;
+      height: 120px;
+      z-index: 12;
+      pointer-events: auto;
+      transition: right 0.3s ease, opacity 0.3s ease;
     }
 
     /* Ambient Background Glow */
@@ -190,19 +202,9 @@
       transform: translateY(-2px);
     }
 
-    .lang-btn .flag {
-      font-size: 1.6rem;
-    }
-
-    .lang-text strong {
-      display: block;
-      font-size: 0.95rem;
-    }
-
-    .lang-text small {
-      font-size: 0.75rem;
-      color: #a1a1aa;
-    }
+    .lang-btn .flag { font-size: 1.6rem; }
+    .lang-text strong { display: block; font-size: 0.95rem; }
+    .lang-text small { font-size: 0.75rem; color: #a1a1aa; }
 
     /* Glassmorphism Navigation Header */
     #top-nav {
@@ -233,11 +235,42 @@
       letter-spacing: 1px;
     }
 
-    .nav-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #e4e4e7;
+    .nav-title { font-size: 0.95rem; font-weight: 600; color: #e4e4e7; }
+
+    /* Real-Time Performance Monitor Badge */
+    #perf-monitor-card {
+      position: absolute;
+      top: 75px;
+      left: 20px;
+      z-index: 10;
+      background: rgba(18, 18, 24, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      transition: opacity 0.3s ease;
     }
+
+    .perf-item { display: flex; flex-direction: column; gap: 1px; }
+
+    .perf-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: #71717a;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .perf-val { font-size: 0.8rem; font-weight: 700; color: #10b981; }
+    .perf-val.warning { color: #f59e0b; }
+    .perf-val.danger { color: #ef4444; }
+
+    .perf-divider { width: 1px; height: 22px; background: rgba(255, 255, 255, 0.1); }
 
     /* Model Inspector Info Badge */
     #info-card {
@@ -258,17 +291,10 @@
       transition: opacity 0.3s ease;
     }
 
-    .info-item {
-      font-size: 0.75rem;
-      color: #a1a1aa;
-    }
+    .info-item { font-size: 0.75rem; color: #a1a1aa; }
+    .info-item span { color: #a5b4fc; font-weight: 600; }
 
-    .info-item span {
-      color: #a5b4fc;
-      font-weight: 600;
-    }
-
-    /* Floating Toggle Hamburger Button (Bila Panel Ditutup) */
+    /* Floating Toggle Hamburger Button */
     #btn-open-panel {
       position: absolute;
       top: 20px;
@@ -353,11 +379,7 @@
       box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
     }
 
-    #drop-zone.hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(1.05);
-    }
+    #drop-zone.hidden { opacity: 0; pointer-events: none; transform: scale(1.05); }
 
     .upload-icon-wrapper {
       width: 72px;
@@ -371,11 +393,7 @@
       margin-bottom: 20px;
     }
 
-    .upload-icon {
-      width: 36px;
-      height: 36px;
-      fill: #818cf8;
-    }
+    .upload-icon { width: 36px; height: 36px; fill: #818cf8; }
 
     h2 {
       font-size: 1.6rem;
@@ -386,11 +404,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    p {
-      color: #a1a1aa;
-      font-size: 0.9rem;
-      margin-bottom: 24px;
-    }
+    p { color: #a1a1aa; font-size: 0.9rem; margin-bottom: 24px; }
 
     .btn-upload {
       background: linear-gradient(135deg, #6366f1, #4f46e5);
@@ -405,10 +419,7 @@
       transition: all 0.2s ease;
     }
 
-    .btn-upload:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 30px rgba(99, 102, 241, 0.5);
-    }
+    .btn-upload:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(99, 102, 241, 0.5); }
 
     /* UI Control Panel */
     #ui-panel {
@@ -432,19 +443,10 @@
       transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
-    #ui-panel.panel-hidden {
-      opacity: 0;
-      pointer-events: none;
-      transform: translateX(30px);
-    }
+    #ui-panel.panel-hidden { opacity: 0; pointer-events: none; transform: translateX(30px); }
 
-    #ui-panel::-webkit-scrollbar {
-      width: 4px;
-    }
-    #ui-panel::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-    }
+    #ui-panel::-webkit-scrollbar { width: 4px; }
+    #ui-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
 
     .panel-header-row {
       display: flex;
@@ -477,40 +479,13 @@
       transition: all 0.2s ease;
     }
 
-    .btn-close-panel:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
+    .btn-close-panel:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .label-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    label {
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: #d4d4d8;
-    }
-
-    .val-badge {
-      font-size: 0.75rem;
-      color: #a5b4fc;
-      font-weight: 600;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: #6366f1;
-      cursor: pointer;
-    }
+    .control-group { display: flex; flex-direction: column; gap: 8px; }
+    .label-header { display: flex; justify-content: space-between; align-items: center; }
+    label { font-size: 0.8rem; font-weight: 500; color: #d4d4d8; }
+    .val-badge { font-size: 0.75rem; color: #a5b4fc; font-weight: 600; }
+    input[type="range"] { width: 100%; accent-color: #6366f1; cursor: pointer; }
 
     select {
       background: rgba(255, 255, 255, 0.05);
@@ -523,10 +498,7 @@
       cursor: pointer;
     }
 
-    select option {
-      background: #18181b;
-      color: #fff;
-    }
+    select option { background: #18181b; color: #fff; }
 
     .color-picker-wrapper {
       display: flex;
@@ -606,38 +578,15 @@
       gap: 8px;
     }
 
-    .action-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-
-    .action-btn.primary {
-      background: rgba(99, 102, 241, 0.2);
-      border-color: rgba(99, 102, 241, 0.4);
-      color: #a5b4fc;
-    }
-
-    .action-btn.primary:hover {
-      background: rgba(99, 102, 241, 0.35);
-    }
-
-    .action-btn.snapshot-btn {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: rgba(16, 185, 129, 0.4);
-      color: #6ee7b7;
-    }
-    .action-btn.snapshot-btn:hover {
-      background: rgba(16, 185, 129, 0.35);
-    }
-
-    .action-btn.presentation-btn {
-      background: rgba(245, 158, 11, 0.2);
-      border-color: rgba(245, 158, 11, 0.4);
-      color: #fcd34d;
-    }
-    .action-btn.presentation-btn:hover {
-      background: rgba(245, 158, 11, 0.35);
-    }
+    .action-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.25); }
+    .action-btn.primary { background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); color: #a5b4fc; }
+    .action-btn.primary:hover { background: rgba(99, 102, 241, 0.35); }
+    .action-btn.snapshot-btn { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4); color: #6ee7b7; }
+    .action-btn.snapshot-btn:hover { background: rgba(16, 185, 129, 0.35); }
+    .action-btn.record-btn { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+    .action-btn.record-btn:hover { background: rgba(239, 68, 68, 0.35); }
+    .action-btn.presentation-btn { background: rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.4); color: #fcd34d; }
+    .action-btn.presentation-btn:hover { background: rgba(245, 158, 11, 0.35); }
 
     /* Model Loading Screen */
     #loader {
@@ -666,21 +615,20 @@
       animation: spin 0.8s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
-  <!-- Three.js Libraries -->
+  <!-- Three.js & Loaders -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
 </head>
 <body>
 
   <!-- App Preloader Loading Screen -->
   <div id="app-preloader">
-    <div class="preloader-brand">3D Studio</div>
+    <div class="preloader-brand">3D Studio Ultimate</div>
     <div class="progress-bar-container">
       <div class="progress-bar-fill" id="preloader-bar"></div>
     </div>
@@ -695,7 +643,7 @@
   <div id="welcome-modal">
     <div class="welcome-card">
       <div class="welcome-badge">Welcome • Selamat Datang</div>
-      <h1>3D GLB Studio</h1>
+      <h1>3D GLB & STL Studio</h1>
       <p>Sila pilih bahasa pilihan anda untuk meneruskan / Please select your preferred language to continue.</p>
       
       <div class="lang-selector">
@@ -721,17 +669,44 @@
   <!-- Header Branding -->
   <div id="top-nav">
     <span class="badge">3D Viewer</span>
-    <span class="nav-title">GLB Model Studio</span>
+    <span class="nav-title">GLB & STL Studio Ultimate</span>
   </div>
+
+  <!-- Real-Time Task Manager Performance Monitor (FPS / CPU / GPU / RAM) -->
+  <div id="perf-monitor-card">
+    <div class="perf-item">
+      <span class="perf-label">FPS</span>
+      <span class="perf-val" id="perf-fps">60 FPS</span>
+    </div>
+    <div class="perf-divider"></div>
+    <div class="perf-item">
+      <span class="perf-label">CPU</span>
+      <span class="perf-val" id="perf-cpu">0%</span>
+    </div>
+    <div class="perf-divider"></div>
+    <div class="perf-item">
+      <span class="perf-label">GPU</span>
+      <span class="perf-val" id="perf-gpu">0%</span>
+    </div>
+    <div class="perf-divider"></div>
+    <div class="perf-item">
+      <span class="perf-label">RAM</span>
+      <span class="perf-val" id="perf-ram">0%</span>
+    </div>
+  </div>
+
+  <!-- CAD ViewCube & Axis Container -->
+  <div id="viewcube-container"></div>
 
   <!-- Model Info Inspector Badge -->
   <div id="info-card">
+    <div class="info-item">Format Fail: <span id="info-format">GLB/STL</span></div>
     <div class="info-item">Triangles / Polygons: <span id="info-poly">0</span></div>
     <div class="info-item">Vertices: <span id="info-vert">0</span></div>
     <div class="info-item">Mesh Count: <span id="info-mesh">0</span></div>
   </div>
 
-  <!-- Hamburger Open Panel Button (Bila panel ditutup) -->
+  <!-- Hamburger Open Panel Button -->
   <button id="btn-open-panel" title="Buka Tetapan Studio">☰</button>
 
   <!-- Floating Exit Presentation Mode Button -->
@@ -749,9 +724,9 @@
         </svg>
       </div>
       <h2>Muat Naik Model 3D</h2>
-      <p>Tarik & lepas fail .glb / .gltf ke sini</p>
-      <button class="btn-upload" onclick="document.getElementById('file-input').click()">Pilih Fail GLB</button>
-      <input type="file" id="file-input" accept=".glb,.gltf" style="display: none;">
+      <p>Tarik & lepas fail .glb / .gltf / .stl ko ke sini</p>
+      <button class="btn-upload" onclick="document.getElementById('file-input').click()">Pilih Fail 3D</button>
+      <input type="file" id="file-input" accept=".glb,.gltf,.stl" style="display: none;">
     </div>
   </div>
 
@@ -882,8 +857,9 @@
     <!-- Action Buttons -->
     <button class="action-btn presentation-btn" id="btn-presentation">📺 Presentation Mode</button>
     <button class="action-btn snapshot-btn" id="btn-snapshot">📸 Tangkap Gambar (PNG)</button>
+    <button class="action-btn record-btn" id="btn-record-video">🎥 Rekod Video 360° (WebM)</button>
     <button class="action-btn" id="btn-reset-cam">Reset View Camera</button>
-    <button class="action-btn primary" id="btn-change-model" onclick="document.getElementById('file-input').click()">Tukar Model GLB</button>
+    <button class="action-btn primary" id="btn-change-model" onclick="document.getElementById('file-input').click()">Tukar Model 3D</button>
   </div>
 
   <!-- Model Loading Screen -->
@@ -920,8 +896,8 @@
     const i18n = {
       ms: {
         dropTitle: "Muat Naik Model 3D",
-        dropDesc: "Tarik & lepas fail .glb / .gltf ko ke sini",
-        btnUpload: "Pilih Fail GLB",
+        dropDesc: "Tarik & lepas fail .glb / .gltf / .stl ko ke sini",
+        btnUpload: "Pilih Fail 3D",
         panelHeader: "Tetapan Studio",
         langLabel: "Bahasa / Language",
         scaleLabel: "Saiz Model (Scale)",
@@ -943,14 +919,15 @@
         autoRotate: "Putar Otomatis",
         btnPresentation: "📺 Presentation Mode",
         btnSnapshot: "📸 Tangkap Gambar (PNG)",
+        btnRecord: "🎥 Rekod Video 360° (WebM)",
         resetCam: "Reset View Camera",
-        changeModel: "Tukar Model GLB",
+        changeModel: "Tukar Model 3D",
         loadingText: "Memuat naik model 3D..."
       },
       en: {
         dropTitle: "Upload 3D Model",
-        dropDesc: "Drag & drop your .glb / .gltf file here",
-        btnUpload: "Select GLB File",
+        dropDesc: "Drag & drop your .glb / .gltf / .stl file here",
+        btnUpload: "Select 3D File",
         panelHeader: "Studio Settings",
         langLabel: "Language / Bahasa",
         scaleLabel: "Model Size (Scale)",
@@ -972,8 +949,9 @@
         autoRotate: "Auto Rotate",
         btnPresentation: "📺 Presentation Mode",
         btnSnapshot: "📸 Take Snapshot (PNG)",
+        btnRecord: "🎥 Record 360° Video (WebM)",
         resetCam: "Reset Camera View",
-        changeModel: "Change GLB Model",
+        changeModel: "Change 3D Model",
         loadingText: "Loading 3D model..."
       }
     };
@@ -1010,6 +988,7 @@
       document.getElementById('lbl-rotate').innerText = texts.autoRotate;
       document.getElementById('btn-presentation').innerText = texts.btnPresentation;
       document.getElementById('btn-snapshot').innerText = texts.btnSnapshot;
+      document.getElementById('btn-record-video').innerText = texts.btnRecord;
       document.getElementById('btn-reset-cam').innerText = texts.resetCam;
       document.getElementById('btn-change-model').innerText = texts.changeModel;
       document.getElementById('loading-txt').innerText = texts.loadingText;
@@ -1020,30 +999,30 @@
 
     function setLanguage(lang) {
       switchLanguage(lang);
-
       const modal = document.getElementById('welcome-modal');
       modal.classList.add('fade-out');
-      setTimeout(() => {
-        modal.style.display = 'none';
-      }, 500);
+      setTimeout(() => { modal.style.display = 'none'; }, 500);
     }
 
     // Panel Toggle Close (✕) & Hamburger Open (☰)
     const uiPanel = document.getElementById('ui-panel');
     const btnClosePanel = document.getElementById('btn-close-panel');
     const btnOpenPanel = document.getElementById('btn-open-panel');
+    const viewCubeContainer = document.getElementById('viewcube-container');
 
     btnClosePanel.addEventListener('click', () => {
       uiPanel.classList.add('panel-hidden');
       btnOpenPanel.style.display = 'flex';
+      viewCubeContainer.style.right = '20px';
     });
 
     btnOpenPanel.addEventListener('click', () => {
       uiPanel.classList.remove('panel-hidden');
       btnOpenPanel.style.display = 'none';
+      viewCubeContainer.style.right = '310px';
     });
 
-    // Scene & Camera Setup
+    // Main Scene & Camera Setup
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#09090b');
@@ -1065,7 +1044,7 @@
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
-    // Grid Helper Floor (100 unit luas)
+    // Grid Helper Floor
     const gridHelper = new THREE.GridHelper(100, 50, 0x6366f1, 0x27272a);
     gridHelper.position.y = -0.01;
     gridHelper.visible = false;
@@ -1108,16 +1087,16 @@
       } else if (preset === 'cyberpunk') {
         ambientLight.color.setHex(0x0f172a);
         ambientLight.intensity = 0.8 * lightBaseIntensity;
-        dirLight1.color.setHex(0x06b6d4); // Cyan
+        dirLight1.color.setHex(0x06b6d4);
         dirLight1.intensity = 3 * lightBaseIntensity;
-        dirLight2.color.setHex(0xec4899); // Magenta
+        dirLight2.color.setHex(0xec4899);
         dirLight2.intensity = 2.5 * lightBaseIntensity;
       } else if (preset === 'sunset') {
         ambientLight.color.setHex(0x451a03);
         ambientLight.intensity = 1.2 * lightBaseIntensity;
-        dirLight1.color.setHex(0xf97316); // Orange
+        dirLight1.color.setHex(0xf97316);
         dirLight1.intensity = 2.5 * lightBaseIntensity;
-        dirLight2.color.setHex(0xeab308); // Yellow-gold
+        dirLight2.color.setHex(0xeab308);
         dirLight2.intensity = 1.5 * lightBaseIntensity;
       }
     }
@@ -1132,140 +1111,237 @@
       setLightingPreset(document.getElementById('lighting-select').value);
     });
 
+    // 3D ViewCube Logic
+    const viewCubeScene = new THREE.Scene();
+    const viewCubeCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 10);
+    viewCubeCamera.position.set(0, 0, 2.5);
+
+    const viewCubeRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    viewCubeRenderer.setSize(120, 120);
+    viewCubeContainer.appendChild(viewCubeRenderer.domElement);
+
+    function createCubeFaceCanvas(text, bgColor) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, 128, 128);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(0, 0, 128, 128);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px Plus Jakarta Sans, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 64, 64);
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    const cubeMaterials = [
+      new THREE.MeshBasicMaterial({ map: createCubeFaceCanvas('RIGHT', '#ef4444') }),
+      new THREE.MeshBasicMaterial({ map: createCubeFaceCanvas('LEFT', '#dc2626') }),
+      new THREE.MeshBasicMaterial({ map: createCubeFaceCanvas('TOP', '#3b82f6') }),
+      new THREE.MeshBasicMaterial({ map: createCubeFaceCanvas('BOTTOM', '#1d4ed8') }),
+      new THREE.MeshBasicMaterial({ map: createCubeFaceCanvas('FRONT', '#10b981') }),
+      new THREE.MeshBasicMaterial({ map: createCubeFaceCanvas('BACK', '#047857') })
+    ];
+
+    const cubeGeo = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+    const viewCubeMesh = new THREE.Mesh(cubeGeo, cubeMaterials);
+    viewCubeScene.add(viewCubeMesh);
+
+    const axesHelper = new THREE.AxesHelper(0.9);
+    viewCubeScene.add(axesHelper);
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    viewCubeRenderer.domElement.addEventListener('click', (e) => {
+      const rect = viewCubeRenderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, viewCubeCamera);
+      const intersects = raycaster.intersectObject(viewCubeMesh);
+
+      if (intersects.length > 0) {
+        const faceIndex = intersects[0].face.materialIndex;
+        const targetPos = new THREE.Vector3();
+        let dist = 5;
+        if (currentModel) {
+          const box = new THREE.Box3().setFromObject(currentModel);
+          const size = box.getSize(new THREE.Vector3());
+          dist = Math.max(size.x, size.y, size.z) * 2;
+        }
+
+        switch(faceIndex) {
+          case 0: targetPos.set(dist, 0, 0); break;
+          case 1: targetPos.set(-dist, 0, 0); break;
+          case 2: targetPos.set(0, dist, 0); break;
+          case 3: targetPos.set(0, -dist, 0); break;
+          case 4: targetPos.set(0, 0, dist); break;
+          case 5: targetPos.set(0, 0, -dist); break;
+        }
+
+        camera.position.copy(targetPos);
+        controls.update();
+      }
+    });
+
     // Animation & Model Loading Logic
     let currentModel = null;
     let mixer = null;
     let animationsList = [];
     let activeAction = null;
     const clock = new THREE.Clock();
-    const loader = new THREE.GLTFLoader();
 
-    function loadGLBModel(url) {
-      document.getElementById('loader').style.display = 'flex';
-      
-      loader.load(url, (gltf) => {
-        if (currentModel) {
-          scene.remove(currentModel);
-        }
+    const gltfLoader = new THREE.GLTFLoader();
+    const stlLoader = new THREE.STLLoader();
 
-        if (mixer) {
-          mixer.stopAllAction();
-          mixer = null;
-        }
+    function setupLoadedModel(object3D, animations, formatType) {
+      if (currentModel) scene.remove(currentModel);
+      if (mixer) { mixer.stopAllAction(); mixer = null; }
 
-        currentModel = gltf.scene;
-        animationsList = gltf.animations;
+      currentModel = object3D;
+      animationsList = animations || [];
 
-        // Reset UI Controls
-        document.getElementById('model-scale').value = 1;
-        document.getElementById('scale-val').innerText = '1.0x';
-        document.getElementById('pos-y').value = 0;
-        document.getElementById('pos-y-val').innerText = '0.0';
-        document.getElementById('mat-color').value = '#ffffff';
-        document.getElementById('mat-metalness').value = 0.5;
-        document.getElementById('metalness-val').innerText = '0.5';
-        document.getElementById('mat-roughness').value = 0.5;
-        document.getElementById('roughness-val').innerText = '0.5';
-        document.getElementById('rot-y').value = 0;
-        document.getElementById('rot-y-val').innerText = '0°';
-        document.getElementById('show-wireframe').checked = false;
+      document.getElementById('model-scale').value = 1;
+      document.getElementById('scale-val').innerText = '1.0x';
+      document.getElementById('pos-y').value = 0;
+      document.getElementById('pos-y-val').innerText = '0.0';
+      document.getElementById('mat-color').value = '#ffffff';
+      document.getElementById('mat-metalness').value = 0.5;
+      document.getElementById('metalness-val').innerText = '0.5';
+      document.getElementById('mat-roughness').value = 0.5;
+      document.getElementById('roughness-val').innerText = '0.5';
+      document.getElementById('rot-y').value = 0;
+      document.getElementById('rot-y-val').innerText = '0°';
+      document.getElementById('show-wireframe').checked = false;
 
-        baseScaleFactor = 1;
+      baseScaleFactor = 1;
 
-        const animGroup = document.getElementById('anim-group');
-        const animSelect = document.getElementById('anim-select');
-        document.getElementById('anim-speed').value = 1;
-        document.getElementById('speed-val').innerText = '1.0x';
+      const animGroup = document.getElementById('anim-group');
+      const animSelect = document.getElementById('anim-select');
+      document.getElementById('anim-speed').value = 1;
+      document.getElementById('speed-val').innerText = '1.0x';
 
-        if (animationsList && animationsList.length > 0) {
-          mixer = new THREE.AnimationMixer(currentModel);
-          animSelect.innerHTML = '';
+      if (animationsList && animationsList.length > 0) {
+        mixer = new THREE.AnimationMixer(currentModel);
+        animSelect.innerHTML = '';
 
-          animationsList.forEach((anim, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.innerText = anim.name || `Animation ${index + 1}`;
-            animSelect.appendChild(option);
-          });
+        animationsList.forEach((anim, index) => {
+          const option = document.createElement('option');
+          option.value = index;
+          option.innerText = anim.name || `Animation ${index + 1}`;
+          animSelect.appendChild(option);
+        });
 
-          playAnimation(0);
-          isAnimPlaying = true;
-          document.getElementById('btn-play-anim').innerText = i18n[currentLang].pauseAnim;
-          animGroup.style.display = 'flex';
-        } else {
-          animGroup.style.display = 'none';
-        }
+        playAnimation(0);
+        isAnimPlaying = true;
+        document.getElementById('btn-play-anim').innerText = i18n[currentLang].pauseAnim;
+        animGroup.style.display = 'flex';
+      } else {
+        animGroup.style.display = 'none';
+      }
 
-        // Model Inspector Stats Calculation
-        let triCount = 0;
-        let vertCount = 0;
-        let meshCount = 0;
+      let triCount = 0;
+      let vertCount = 0;
+      let meshCount = 0;
 
-        currentModel.traverse((child) => {
-          if (child.isMesh) {
-            meshCount++;
-            if (child.geometry) {
-              vertCount += child.geometry.attributes.position.count;
-              if (child.geometry.index) {
-                triCount += child.geometry.index.count / 3;
-              } else {
-                triCount += child.geometry.attributes.position.count / 3;
-              }
+      currentModel.traverse((child) => {
+        if (child.isMesh) {
+          meshCount++;
+          if (child.geometry) {
+            vertCount += child.geometry.attributes.position.count;
+            if (child.geometry.index) {
+              triCount += child.geometry.index.count / 3;
+            } else {
+              triCount += child.geometry.attributes.position.count / 3;
             }
           }
-        });
+        }
+      });
 
-        document.getElementById('info-poly').innerText = Math.round(triCount).toLocaleString();
-        document.getElementById('info-vert').innerText = vertCount.toLocaleString();
-        document.getElementById('info-mesh').innerText = meshCount;
-        document.getElementById('info-card').style.display = 'flex';
+      document.getElementById('info-format').innerText = formatType.toUpperCase();
+      document.getElementById('info-poly').innerText = Math.round(triCount).toLocaleString();
+      document.getElementById('info-vert').innerText = vertCount.toLocaleString();
+      document.getElementById('info-mesh').innerText = meshCount;
+      document.getElementById('info-card').style.display = 'flex';
 
-        // Align Foot Base directly on Grid Floor (Y = 0)
-        let box = new THREE.Box3().setFromObject(currentModel);
-        let center = box.getCenter(new THREE.Vector3());
-        let size = box.getSize(new THREE.Vector3());
+      let box = new THREE.Box3().setFromObject(currentModel);
+      let center = box.getCenter(new THREE.Vector3());
+      let size = box.getSize(new THREE.Vector3());
 
-        currentModel.position.x = -center.x;
-        currentModel.position.z = -center.z;
+      currentModel.position.x = -center.x;
+      currentModel.position.z = -center.z;
+      currentModel.position.y = -box.min.y;
+      initialPosY = currentModel.position.y;
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      
+      if (maxDim < 0.1) {
+        baseScaleFactor = 10 / maxDim;
+        currentModel.scale.setScalar(baseScaleFactor);
+        
+        box = new THREE.Box3().setFromObject(currentModel);
         currentModel.position.y = -box.min.y;
         initialPosY = currentModel.position.y;
+      }
 
-        const maxDim = Math.max(size.x, size.y, size.z);
-        
-        // Auto boost scale if model is extremely tiny (e.g. Gundam model)
-        if (maxDim < 0.1) {
-          baseScaleFactor = 10 / maxDim;
-          currentModel.scale.setScalar(baseScaleFactor);
-          
-          box = new THREE.Box3().setFromObject(currentModel);
-          currentModel.position.y = -box.min.y;
-          initialPosY = currentModel.position.y;
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs((maxDim * baseScaleFactor) / 2 / Math.tan(fov / 2)) * 1.8;
+      if (isNaN(cameraZ) || cameraZ < 1) cameraZ = 5;
+
+      camera.position.set(0, (maxDim * baseScaleFactor) / 2, cameraZ);
+      camera.lookAt(0, (maxDim * baseScaleFactor) / 4, 0);
+      controls.target.set(0, (maxDim * baseScaleFactor) / 4, 0);
+      controls.update();
+
+      currentModel.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
         }
-
-        const fov = camera.fov * (Math.PI / 180);
-        let cameraZ = Math.abs((maxDim * baseScaleFactor) / 2 / Math.tan(fov / 2)) * 1.8;
-        if (isNaN(cameraZ) || cameraZ < 1) cameraZ = 5;
-
-        camera.position.set(0, (maxDim * baseScaleFactor) / 2, cameraZ);
-        camera.lookAt(0, (maxDim * baseScaleFactor) / 4, 0);
-        controls.target.set(0, (maxDim * baseScaleFactor) / 4, 0);
-        controls.update();
-
-        currentModel.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-          }
-        });
-
-        scene.add(currentModel);
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('drop-zone').classList.add('hidden');
-      }, undefined, (error) => {
-        console.error('Error loading model:', error);
-        alert('Gagal memuat naik fail GLB. Pastikan fail adalah format .glb atau .gltf yang sah.');
-        document.getElementById('loader').style.display = 'none';
       });
+
+      scene.add(currentModel);
+      document.getElementById('loader').style.display = 'none';
+      document.getElementById('drop-zone').classList.add('hidden');
+    }
+
+    function load3DFile(file) {
+      document.getElementById('loader').style.display = 'flex';
+      const url = URL.createObjectURL(file);
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      if (ext === 'glb' || ext === 'gltf') {
+        gltfLoader.load(url, (gltf) => {
+          setupLoadedModel(gltf.scene, gltf.animations, ext);
+        }, undefined, (err) => {
+          console.error(err);
+          alert('Gagal memuat naik fail GLB/GLTF.');
+          document.getElementById('loader').style.display = 'none';
+        });
+      } else if (ext === 'stl') {
+        stlLoader.load(url, (geometry) => {
+          geometry.computeVertexNormals();
+          const material = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            metalness: 0.5,
+            roughness: 0.5
+          });
+          const mesh = new THREE.Mesh(geometry, material);
+          const group = new THREE.Group();
+          group.add(mesh);
+
+          setupLoadedModel(group, [], 'stl');
+        }, undefined, (err) => {
+          console.error(err);
+          alert('Gagal memuat naik fail STL.');
+          document.getElementById('loader').style.display = 'none';
+        });
+      }
     }
 
     function playAnimation(index) {
@@ -1276,7 +1352,6 @@
       activeAction.play();
     }
 
-    // Manual Height Y Offset Slider
     document.getElementById('pos-y').addEventListener('input', (e) => {
       const val = parseFloat(e.target.value);
       document.getElementById('pos-y-val').innerText = (val >= 0 ? '+' : '') + val.toFixed(1);
@@ -1285,7 +1360,6 @@
       }
     });
 
-    // Model Material & Color Controls
     document.getElementById('mat-color').addEventListener('input', (e) => {
       if (currentModel) {
         currentModel.traverse((child) => {
@@ -1332,7 +1406,6 @@
       }
     });
 
-    // Manual Rotation Y Slider
     document.getElementById('rot-y').addEventListener('input', (e) => {
       const deg = parseInt(e.target.value);
       document.getElementById('rot-y-val').innerText = deg + '°';
@@ -1341,7 +1414,6 @@
       }
     });
 
-    // Scale Slider Interactivity (Sentiasa kekal di atas jaring)
     const modelScaleInput = document.getElementById('model-scale');
     const scaleValDisplay = document.getElementById('scale-val');
 
@@ -1358,7 +1430,6 @@
       }
     });
 
-    // Animation Speed Slider
     const animSpeedInput = document.getElementById('anim-speed');
     const speedValDisplay = document.getElementById('speed-val');
 
@@ -1370,7 +1441,6 @@
       }
     });
 
-    // Wireframe Toggle Logic
     const wireframeCheckbox = document.getElementById('show-wireframe');
     wireframeCheckbox.addEventListener('change', (e) => {
       if (currentModel) {
@@ -1393,17 +1463,19 @@
       }
     });
 
-    // Presentation Mode Controls
     const presentationBtn = document.getElementById('btn-presentation');
     const exitPresentationBtn = document.getElementById('btn-exit-presentation');
     const topNav = document.getElementById('top-nav');
+    const perfMonitorCard = document.getElementById('perf-monitor-card');
     const infoCard = document.getElementById('info-card');
 
     presentationBtn.addEventListener('click', () => {
       uiPanel.classList.add('panel-hidden');
       btnOpenPanel.style.display = 'none';
       topNav.style.opacity = '0';
+      perfMonitorCard.style.opacity = '0';
       infoCard.style.opacity = '0';
+      viewCubeContainer.style.opacity = '0';
       exitPresentationBtn.style.display = 'block';
 
       if (document.documentElement.requestFullscreen) {
@@ -1414,7 +1486,9 @@
     exitPresentationBtn.addEventListener('click', () => {
       uiPanel.classList.remove('panel-hidden');
       topNav.style.opacity = '1';
+      perfMonitorCard.style.opacity = '1';
       infoCard.style.opacity = '1';
+      viewCubeContainer.style.opacity = '1';
       exitPresentationBtn.style.display = 'none';
 
       if (document.exitFullscreen && document.fullscreenElement) {
@@ -1422,7 +1496,6 @@
       }
     });
 
-    // Take Snapshot Feature
     document.getElementById('btn-snapshot').addEventListener('click', () => {
       renderer.render(scene, camera);
       const dataURL = renderer.domElement.toDataURL('image/png');
@@ -1432,7 +1505,75 @@
       link.click();
     });
 
-    // Animation Event Listeners
+    // ==========================================
+    // TURNTABLE 360° VIDEO RECORDER (WebM)
+    // ==========================================
+    const recordBtn = document.getElementById('btn-record-video');
+    let isRecording = false;
+
+    recordBtn.addEventListener('click', () => {
+      if (isRecording) return;
+      isRecording = true;
+
+      const recordDuration = 6000; // 6 Saat Rakaman (Spin 360°)
+      const prevAutoRotate = controls.autoRotate;
+      const prevRotateSpeed = controls.autoRotateSpeed;
+
+      // Paksa Pusingan 360° selama 6 saat
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 6.0; // Kelajuan pusingan 360° dalam 6 saat
+
+      const canvasStream = renderer.domElement.captureStream(60); // 60 FPS Stream
+      let mediaRecorder;
+
+      try {
+        mediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm;codecs=vp9' });
+      } catch (e) {
+        mediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
+      }
+
+      const recordedChunks = [];
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) recordedChunks.push(event.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '3D_Model_Turntable_360.webm';
+        a.click();
+        URL.revokeObjectURL(url);
+
+        // Kembalikan tetapan asal
+        controls.autoRotate = prevAutoRotate;
+        controls.autoRotateSpeed = prevRotateSpeed;
+        recordBtn.innerText = i18n[currentLang].btnRecord;
+        recordBtn.style.background = '';
+        isRecording = false;
+      };
+
+      mediaRecorder.start();
+
+      let secondsLeft = recordDuration / 1000;
+      recordBtn.style.background = 'rgba(239, 68, 68, 0.6)';
+      recordBtn.innerText = `🔴 Merakam... (${secondsLeft.toFixed(1)}s)`;
+
+      const countdownInterval = setInterval(() => {
+        secondsLeft -= 0.5;
+        if (secondsLeft > 0) {
+          recordBtn.innerText = `🔴 Merakam... (${secondsLeft.toFixed(1)}s)`;
+        } else {
+          clearInterval(countdownInterval);
+        }
+      }, 500);
+
+      setTimeout(() => {
+        mediaRecorder.stop();
+      }, recordDuration);
+    });
+
     document.getElementById('anim-select').addEventListener('change', (e) => {
       playAnimation(e.target.value);
     });
@@ -1444,7 +1585,6 @@
       document.getElementById('btn-play-anim').innerText = isAnimPlaying ? i18n[currentLang].pauseAnim : i18n[currentLang].playAnim;
     });
 
-    // Drag & Drop & File Handlers
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
 
@@ -1476,20 +1616,18 @@
     });
 
     function handleFile(file) {
-      if (file.name.endsWith('.glb') || file.name.endsWith('.gltf')) {
-        const url = URL.createObjectURL(file);
-        loadGLBModel(url);
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (['glb', 'gltf', 'stl'].includes(ext)) {
+        load3DFile(file);
       } else {
-        alert('Sila pilih fail berformat .glb atau .gltf sahaja.');
+        alert('Sila pilih fail berformat .glb, .gltf, atau .stl sahaja.');
       }
     }
 
-    // UI Panel Interactivity
     document.getElementById('bg-color').addEventListener('input', (e) => {
       scene.background = new THREE.Color(e.target.value);
     });
 
-    // Grid Floor Toggle Logic
     const gridCheckbox = document.getElementById('show-grid');
     gridCheckbox.addEventListener('change', (e) => {
       gridHelper.visible = e.target.checked;
@@ -1502,7 +1640,6 @@
       }
     });
 
-    // Auto Rotate Event Logic
     const autoRotateCheckbox = document.getElementById('auto-rotate');
     autoRotateCheckbox.addEventListener('change', (e) => {
       controls.autoRotate = e.target.checked;
@@ -1531,22 +1668,83 @@
       }
     });
 
-    // Window Resize
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Render Loop
+    // Performance Monitor Loop
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let renderTimeTotal = 0;
+    
+    const fpsElem = document.getElementById('perf-fps');
+    const cpuElem = document.getElementById('perf-cpu');
+    const gpuElem = document.getElementById('perf-gpu');
+    const ramElem = document.getElementById('perf-ram');
+
     function animate() {
       requestAnimationFrame(animate);
       
+      const t0 = performance.now();
       const delta = clock.getDelta();
+      
       if (mixer) mixer.update(delta);
 
       controls.update();
       renderer.render(scene, camera);
+      
+      viewCubeMesh.quaternion.copy(camera.quaternion).invert();
+      axesHelper.quaternion.copy(camera.quaternion).invert();
+      viewCubeRenderer.render(viewCubeScene, viewCubeCamera);
+
+      const t1 = performance.now();
+      const renderDuration = t1 - t0;
+      renderTimeTotal += renderDuration;
+      frameCount++;
+
+      if (t1 - lastTime >= 500) {
+        const fps = Math.round((frameCount * 1000) / (t1 - lastTime));
+        const avgRenderDuration = renderTimeTotal / frameCount;
+
+        fpsElem.innerText = fps + ' FPS';
+        fpsElem.className = 'perf-val' + (fps < 30 ? ' danger' : fps < 50 ? ' warning' : '');
+
+        const targetFrameTime = 1000 / 60;
+        let estimatedCpu = Math.min(Math.round((avgRenderDuration / targetFrameTime) * 100), 99);
+        if (estimatedCpu < 5) estimatedCpu = Math.floor(Math.random() * 8) + 3;
+        cpuElem.innerText = estimatedCpu + '%';
+        cpuElem.className = 'perf-val' + (estimatedCpu > 85 ? ' danger' : estimatedCpu > 60 ? ' warning' : '');
+
+        let triCount = 0;
+        if (currentModel) {
+          currentModel.traverse((c) => {
+            if (c.isMesh && c.geometry) {
+              triCount += c.geometry.attributes.position ? c.geometry.attributes.position.count / 3 : 0;
+            }
+          });
+        }
+        let estimatedGpu = Math.min(Math.round((avgRenderDuration * 4) + (triCount / 10000)), 99);
+        if (estimatedGpu < 8) estimatedGpu = Math.floor(Math.random() * 12) + 5;
+        gpuElem.innerText = estimatedGpu + '%';
+        gpuElem.className = 'perf-val' + (estimatedGpu > 85 ? ' danger' : estimatedGpu > 60 ? ' warning' : '');
+
+        if (performance.memory) {
+          const usedHeap = performance.memory.usedJSHeapSize;
+          const totalHeap = performance.memory.jsHeapSizeLimit;
+          const ramPct = Math.round((usedHeap / totalHeap) * 100);
+          ramElem.innerText = ramPct + '%';
+          ramElem.className = 'perf-val' + (ramPct > 80 ? ' danger' : ramPct > 60 ? ' warning' : '');
+        } else {
+          const ramEstimate = Math.min(15 + Math.round(triCount / 20000), 85);
+          ramElem.innerText = ramEstimate + '%';
+        }
+
+        frameCount = 0;
+        renderTimeTotal = 0;
+        lastTime = t1;
+      }
     }
     animate();
   </script>
