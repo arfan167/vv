@@ -1,5 +1,5 @@
 {
-  "name": "3d-glb-studio-ultimate",
+  "name": "3d-glb-studio",
   "version": "1.0.0",
   "description": "3D GLB Studio Interactive Desktop App",
   "main": "main.js",
@@ -15,7 +15,7 @@
   },
   "build": {
     "appId": "com.studio3d.app",
-    "productName": "3D GLB Studio Ultimate",
+    "productName": "3D GLB Studio",
     "win": {
       "target": "nsis"
     },
